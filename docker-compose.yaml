@@ -1,0 +1,21 @@
+version: "3.9"
+
+networks:
+  mylibraryapp:
+
+volumes:
+  volumedb:
+
+services:
+
+  mysqldb:
+    image: mysql:latest
+    container_name: mysqldb
+    networks:
+      - mylibraryapp
+    volumes:
+      - volumedb:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
