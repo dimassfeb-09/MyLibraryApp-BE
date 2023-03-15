@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/repository"
@@ -9,7 +11,7 @@ import (
 )
 
 type UserService interface {
-	AddUser(ctx context.Context, user *domain.User) (isSuccess bool, msg string, err error)
+	AddUser(ctx context.Context, user *request.AddUser) (isSuccess bool, msg string, err error)
 	UpdateUser(ctx context.Context, user *domain.User) (isSuccess bool, msg string, err error)
 	DeleteUser(ctx context.Context, ID int) (isSuccess bool, msg string, err error)
 	GetUserByID(ctx context.Context, ID int) (user *domain.User, msg string, err error)
@@ -26,16 +28,26 @@ func NewUserServiceImplementation(DB *gorm.DB, userRepository repository.UserRep
 	return &UserServiceImplementation{DB: DB, UserRepository: userRepository}
 }
 
-func (u *UserServiceImplementation) AddUser(ctx context.Context, user *domain.User) (bool, string, error) {
+func (u *UserServiceImplementation) AddUser(ctx context.Context, r *request.AddUser) (bool, string, error) {
 
-	userByNPM, _, _ := u.GetUserByNPM(ctx, user.NPM)
+	userByNPM, _, _ := u.GetUserByNPM(ctx, r.NPM)
 	if userByNPM != nil {
+		fmt.Println(userByNPM)
 		return false, "NPM telah digunakan.", gorm.ErrRegistered
 	}
 
-	userByEmail, _, _ := u.GetUserByEmail(ctx, user.Email)
+	userByEmail, _, _ := u.GetUserByEmail(ctx, r.Email)
 	if userByEmail != nil {
 		return false, "Email telah digunakan.", gorm.ErrRegistered
+	}
+
+	user := &domain.User{
+		ID:       r.ID,
+		Name:     r.Name,
+		NPM:      r.NPM,
+		Email:    r.Email,
+		Password: r.Password,
+		IsGoogle: r.IsGoogle,
 	}
 
 	return u.UserRepository.AddUser(ctx, u.DB, user)
@@ -96,7 +108,7 @@ func (u *UserServiceImplementation) GetUserByNPM(ctx context.Context, NPM string
 		return nil, msg, err
 	}
 
-	return user, "User NPM ditemukan.", err
+	return user, "User NPM ditemukan.", nil
 }
 
 func (u *UserServiceImplementation) GetUserByEmail(ctx context.Context, email string) (*domain.User, string, error) {
@@ -107,5 +119,5 @@ func (u *UserServiceImplementation) GetUserByEmail(ctx context.Context, email st
 		}
 		return nil, msg, err
 	}
-	return user, "User Email ditemukan.", err
+	return user, "User Email ditemukan.", nil
 }

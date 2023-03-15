@@ -28,9 +28,8 @@ func (u *UserRepositoryImplementation) AddUser(ctx context.Context, tx *gorm.DB,
 	err := tx.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Table("user").Create(&user).Error; err != nil {
 			return err
-		} else {
-			return nil
 		}
+		return nil
 	})
 
 	if err != nil {
@@ -44,9 +43,8 @@ func (u *UserRepositoryImplementation) UpdateUser(ctx context.Context, tx *gorm.
 	err := tx.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Table("user").Updates(&user).Where("id = ?", &user.ID).Error; err != nil {
 			return err
-		} else {
-			return nil
 		}
+		return nil
 	})
 
 	if err != nil {
