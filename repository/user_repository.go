@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
 	"gorm.io/gorm"
 )
@@ -59,7 +57,6 @@ func (u *UserRepositoryImplementation) GetUserByID(ctx context.Context, db *gorm
 	if err := db.WithContext(ctx).Table("user").Where("id = ?", ID).First(&user).Error; err != nil {
 		return nil, "Gagal Get User by ID.", err
 	}
-	fmt.Println(user)
 	return user, "Berhasil Get User by ID.", nil
 }
 
@@ -80,9 +77,8 @@ func (u *UserRepositoryImplementation) GetUserByNPM(ctx context.Context, db *gor
 }
 
 func (u *UserRepositoryImplementation) DeleteUser(ctx context.Context, tx *gorm.DB, ID int) (bool, string, error) {
-	var user *domain.User
 	err := tx.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Table("user").Where("id = ?").Delete(&user).Error; err != nil {
+		if err := tx.Table("user").Where("id = ?", ID).Delete(ID).Error; err != nil {
 			return err
 		} else {
 			return nil
@@ -93,5 +89,5 @@ func (u *UserRepositoryImplementation) DeleteUser(ctx context.Context, tx *gorm.
 		return false, "Gagal hapus data user.", err
 	}
 
-	return true, "Berhasil hapus data user,", nil
+	return true, "Berhasil hapus data user.", nil
 }
