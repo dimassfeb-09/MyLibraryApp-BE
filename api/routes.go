@@ -35,7 +35,7 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 
 	auth := api.Group("/auth")
 	auth.POST("/register", authController.AuthRegister)
-	auth.POST("/login", authController.AuthLoginser)
+	auth.POST("/login", authController.AuthLogin)
 
 	return r
 }
