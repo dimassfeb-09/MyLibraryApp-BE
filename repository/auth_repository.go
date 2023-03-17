@@ -7,8 +7,8 @@ import (
 )
 
 type AuthRepository interface {
-	RegisterUser(ctx context.Context, tx *gorm.DB, user *domain.User) (isSuccess bool, msg string, err error)
-	LoginUser(ctx context.Context, tx *gorm.DB, email string) (user *domain.User, err error)
+	AuthRegister(ctx context.Context, tx *gorm.DB, user *domain.AuthRegister) (isSuccess bool, msg string, err error)
+	AuthLogin(ctx context.Context, tx *gorm.DB, email string) (user *domain.User, err error)
 }
 
 type AuthRepositoryImplementation struct {
@@ -18,7 +18,7 @@ func NewAuthRepositoryImplementation() AuthRepository {
 	return &AuthRepositoryImplementation{}
 }
 
-func (a *AuthRepositoryImplementation) RegisterUser(ctx context.Context, tx *gorm.DB, user *domain.User) (bool, string, error) {
+func (a *AuthRepositoryImplementation) AuthRegister(ctx context.Context, tx *gorm.DB, user *domain.AuthRegister) (bool, string, error) {
 	err := tx.Transaction(func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Table("user").Create(&user).Error; err != nil {
 			return err
@@ -32,7 +32,7 @@ func (a *AuthRepositoryImplementation) RegisterUser(ctx context.Context, tx *gor
 	return true, "Berhasil daftar user.", nil
 }
 
-func (a *AuthRepositoryImplementation) LoginUser(ctx context.Context, tx *gorm.DB, email string) (*domain.User, error) {
+func (a *AuthRepositoryImplementation) AuthLogin(ctx context.Context, tx *gorm.DB, email string) (*domain.User, error) {
 	var user *domain.User
 	if err := tx.Table("user").Select("id, email, password").Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
