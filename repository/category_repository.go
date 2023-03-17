@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
 	"gorm.io/gorm"
 )
@@ -88,6 +87,5 @@ func (c *CategoryRepositoryImplementation) GetCategories(ctx context.Context, db
 	if err := db.WithContext(ctx).Table("category").Find(&categories).Error; err != nil {
 		return nil, "Gagal get data kategoris.", err
 	}
-	fmt.Println(categories)
 	return categories, "Berhasil get data kategoris.", nil
 }
