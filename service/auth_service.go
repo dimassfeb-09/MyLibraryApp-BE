@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/repository"
@@ -42,8 +41,6 @@ func (a *AuthServiceImplementation) AuthRegister(ctx context.Context, r *request
 	if err != nil {
 		return false, "Internal Server Error", errors.New("Internal Server Error")
 	}
-
-	fmt.Println(string(hashPassword))
 
 	authRegister := &domain.AuthRegister{
 		Name:     r.Name,
