@@ -5,7 +5,6 @@ import (
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/helpers"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/service"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -50,7 +49,6 @@ func (u *UserControllerImplementation) UpdateUser(c *gin.Context) {
 	var user request.User
 	err := c.ShouldBind(&user)
 	if err != nil {
-		log.Println(err)
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, err.Error(), nil))
 		return
 	}

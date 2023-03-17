@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/response"
 
@@ -33,7 +32,6 @@ func (u *UserServiceImplementation) AddUser(ctx context.Context, r *request.User
 
 	userByNPM, _, _ := u.GetUserByNPM(ctx, r.NPM)
 	if userByNPM != nil {
-		fmt.Println(userByNPM)
 		return false, "NPM telah digunakan.", gorm.ErrRegistered
 	}
 

@@ -1,6 +1,6 @@
 package request
 
-type AddUser struct {
+type User struct {
 	ID       int    `json:"id" gorm:"->;primaryKey"`
 	Name     string `binding:"required" json:"name" gorm:"<-;not null"`
 	NPM      string `binding:"required" json:"npm" gorm:"<-;not null"`
