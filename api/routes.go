@@ -25,6 +25,10 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 	categoryService := service.NewCategoryServiceImplementation(db, categoryRepository)
 	categoryController := controller.NewCategoryControllerImplementation(categoryService)
 
+	bookRepository := repository.NewBookRepositoryImplementation()
+	bookService := service.NewBookServiceImplementation(db, bookRepository, categoryService)
+	bookController := controller.NewBookControllerImplementation(bookService)
+
 	api := r.Group("api/v.1")
 	user := api.Group("/user")
 	user.POST("/add", userController.AddUser)
@@ -57,6 +61,24 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 			return
 		} else {
 			categoryController.GetCategories(c)
+			return
+		}
+
+	})
+
+	book := api.Group("/book")
+	book.POST("/add", bookController.AddBook)
+	book.PUT("/update", bookController.UpdateBook)
+	book.DELETE("/delete", bookController.DeleteBook)
+	book.GET("/get", func(c *gin.Context) {
+		if c.Query("id") != "" {
+			bookController.GetBookByID(c)
+			return
+		} else if c.Query("title") != "" {
+			bookController.GetBookByTitle(c)
+			return
+		} else {
+			bookController.GetBooks(c)
 			return
 		}
 
