@@ -1,11 +1,12 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/helpers"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type AuthController interface {
@@ -36,7 +37,7 @@ func (a *AuthControllerImplementation) AuthRegister(c *gin.Context) {
 	}
 
 	if isSuccess {
-		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, nil))
+		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, "Berhasil Register.", nil))
 		return
 	}
 }
