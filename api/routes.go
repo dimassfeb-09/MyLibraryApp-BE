@@ -29,6 +29,10 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 	bookService := service.NewBookServiceImplementation(db, bookRepository, categoryService)
 	bookController := controller.NewBookControllerImplementation(bookService)
 
+	wishlistRepository := repository.NewWishlistRepositoryImplementation()
+	wishlistService := service.NewWishlistServiceImplementation(db, wishlistRepository, userService, bookService)
+	wishlistController := controller.NewWishlistControllerImplementation(wishlistService)
+
 	api := r.Group("api/v.1")
 	user := api.Group("/user")
 	user.POST("/add", userController.AddUser)
@@ -82,6 +86,23 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 			return
 		}
 
+	})
+
+	wishlist := api.Group("/wishlist")
+	wishlist.POST("/add", wishlistController.AddWishlist)
+	wishlist.PUT("/update", wishlistController.UpdateWishlist)
+	wishlist.DELETE("/delete", wishlistController.DeleteWishlist)
+	wishlist.GET("/get", func(c *gin.Context) {
+		if c.Query("id") != "" {
+			wishlistController.GetWishlistByID(c)
+			return
+		} else if c.Query("user_id") != "" {
+			wishlistController.GetWishlistByUserID(c)
+			return
+		} else {
+			wishlistController.GetWishlists(c)
+			return
+		}
 	})
 
 	return r
