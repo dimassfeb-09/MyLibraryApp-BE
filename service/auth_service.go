@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/repository"
@@ -61,12 +62,15 @@ func (a *AuthServiceImplementation) AuthLogin(ctx context.Context, login *reques
 
 	loginDetail, err := a.AuthRepository.AuthLogin(ctx, a.DB, login.Email)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, "User credentials not valid.", err
+		}
 		return false, "Internal Server Error.", err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(loginDetail.Password), []byte(login.Password))
 	if err != nil {
-		return false, "Password salah, silahkan cek kembali.", err
+		return false, "User credentials not valid.", err
 	}
 
 	return true, "Berhasil Login.", nil
