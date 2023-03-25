@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
@@ -17,23 +18,23 @@ type AuthService interface {
 }
 
 type AuthServiceImplementation struct {
-	DB             *gorm.DB
-	AuthRepository repository.AuthRepository
-	UserService    UserService
+	DB              *gorm.DB
+	AuthRepository  repository.AuthRepository
+	MicroRepository repository.MicroRepository
 }
 
-func NewAuthServiceImplementation(DB *gorm.DB, authRepository repository.AuthRepository, userService UserService) AuthService {
-	return &AuthServiceImplementation{DB: DB, AuthRepository: authRepository, UserService: userService}
+func NewAuthServiceImplementation(DB *gorm.DB, microRepository repository.MicroRepository) AuthService {
+	return &AuthServiceImplementation{DB: DB, AuthRepository: microRepository.Auth(), MicroRepository: microRepository}
 }
 
 func (a *AuthServiceImplementation) AuthRegister(ctx context.Context, r *request.AuthRegister) (bool, string, error) {
 
-	_, msg, err := a.UserService.GetUserByEmail(ctx, r.Email)
+	_, msg, err := a.MicroRepository.User().GetUserByEmail(ctx, a.DB, r.Email)
 	if err != gorm.ErrRecordNotFound {
 		return false, "Email telah digunakan.", gorm.ErrRegistered
 	}
 
-	_, msg, err = a.UserService.GetUserByNPM(ctx, r.NPM)
+	_, msg, err = a.MicroRepository.User().GetUserByNPM(ctx, a.DB, r.NPM)
 	if err != gorm.ErrRecordNotFound {
 		return false, "NPM telah digunakan.", gorm.ErrRegistered
 	}
@@ -55,7 +56,7 @@ func (a *AuthServiceImplementation) AuthRegister(ctx context.Context, r *request
 		return false, msg, err
 	}
 
-	return false, msg, err
+	return true, msg, err
 }
 
 func (a *AuthServiceImplementation) AuthLogin(ctx context.Context, login *request.AuthLogin) (bool, string, error) {
@@ -63,6 +64,7 @@ func (a *AuthServiceImplementation) AuthLogin(ctx context.Context, login *reques
 	loginDetail, err := a.AuthRepository.AuthLogin(ctx, a.DB, login.Email)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
+			fmt.Println("exec here")
 			return false, "User credentials not valid.", err
 		}
 		return false, "Internal Server Error.", err
@@ -70,7 +72,7 @@ func (a *AuthServiceImplementation) AuthLogin(ctx context.Context, login *reques
 
 	err = bcrypt.CompareHashAndPassword([]byte(loginDetail.Password), []byte(login.Password))
 	if err != nil {
-		return false, "User credentials not valid.", err
+		return false, "Gagal Login.", err
 	}
 
 	return true, "Berhasil Login.", nil

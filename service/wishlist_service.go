@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/response"
@@ -21,22 +22,27 @@ type WishlistService interface {
 type WishlistServiceImplementation struct {
 	db                 *gorm.DB
 	WishlistRepository repository.WishlistRepository
-	UserService        UserService
-	BookService        BookService
+	BookRepository     repository.BookRepository
+	UserRepository     repository.UserRepository
 }
 
-func NewWishlistServiceImplementation(db *gorm.DB, wishlistRepository repository.WishlistRepository, userRepository UserService, bookService BookService) WishlistService {
-	return &WishlistServiceImplementation{db: db, WishlistRepository: wishlistRepository, UserService: userRepository, BookService: bookService}
+func NewWishlistServiceImplementation(db *gorm.DB, microRepository repository.MicroRepository) WishlistService {
+	return &WishlistServiceImplementation{
+		db:                 db,
+		WishlistRepository: microRepository.Wishlist(),
+		BookRepository:     microRepository.Book(),
+		UserRepository:     microRepository.User(),
+	}
 }
 
 func (w *WishlistServiceImplementation) AddWishlist(ctx context.Context, r *request.Wishlist) (bool, string, error) {
 
-	_, _, err := w.UserService.GetUserByID(ctx, r.UserID)
+	_, _, err := w.UserRepository.GetUserByID(ctx, w.db, r.UserID)
 	if err == gorm.ErrRecordNotFound {
 		return false, "User tidak ditemukan.", err
 	}
 
-	_, _, err = w.BookService.GetBookByID(ctx, r.BookID)
+	_, _, err = w.BookRepository.GetBookByID(ctx, w.db, r.BookID)
 	if err == gorm.ErrRecordNotFound {
 		return false, "Buku tidak ditemukan.", err
 	}
@@ -56,12 +62,12 @@ func (w *WishlistServiceImplementation) UpdateWishlist(ctx context.Context, r *r
 		return false, "Wishlist tidak ditemukan", err
 	}
 
-	_, _, err = w.UserService.GetUserByID(ctx, r.UserID)
+	_, _, err = w.UserRepository.GetUserByID(ctx, w.db, r.UserID)
 	if err == gorm.ErrRecordNotFound {
 		return false, "User tidak ditemukan.", err
 	}
 
-	_, _, err = w.BookService.GetBookByID(ctx, r.BookID)
+	_, _, err = w.BookRepository.GetBookByID(ctx, w.db, r.BookID)
 	if err == gorm.ErrRecordNotFound {
 		return false, "Buku tidak ditemukan.", err
 	}
