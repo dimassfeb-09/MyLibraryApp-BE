@@ -21,10 +21,11 @@ type CategoryService interface {
 type CategoryServiceImplementation struct {
 	DB                 *gorm.DB
 	CategoryRepository repository.CategoryRepository
+	MicroRepository    repository.MicroRepository
 }
 
-func NewCategoryServiceImplementation(DB *gorm.DB, categoryRepository repository.CategoryRepository) CategoryService {
-	return &CategoryServiceImplementation{DB: DB, CategoryRepository: categoryRepository}
+func NewCategoryServiceImplementation(DB *gorm.DB, microRepository repository.MicroRepository) CategoryService {
+	return &CategoryServiceImplementation{DB: DB, CategoryRepository: microRepository.Category(), MicroRepository: microRepository}
 }
 
 func (c *CategoryServiceImplementation) AddCategory(ctx context.Context, r *request.Category) (bool, string, error) {
