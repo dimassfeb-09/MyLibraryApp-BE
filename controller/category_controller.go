@@ -1,12 +1,15 @@
 package controller
 
 import (
+	"fmt"
+	"gorm.io/gorm"
+	"net/http"
+	"strconv"
+
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/helpers"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 type CategoryController interface {
@@ -30,12 +33,17 @@ func (cat *CategoryControllerImplementation) AddCategory(c *gin.Context) {
 	var category *request.Category
 	err := c.ShouldBind(&category)
 	if err != nil {
+
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, err.Error(), nil))
 		return
 	}
 
 	isSuccess, msg, err := cat.CategoryService.AddCategory(c.Request.Context(), category)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
@@ -64,6 +72,10 @@ func (cat *CategoryControllerImplementation) UpdateCategory(c *gin.Context) {
 
 	isSuccess, msg, err := cat.CategoryService.UpdateCategory(c.Request.Context(), category)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
@@ -83,6 +95,10 @@ func (cat *CategoryControllerImplementation) DeleteCategory(c *gin.Context) {
 
 	isSuccess, msg, err := cat.CategoryService.DeleteCategory(c.Request.Context(), ID)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
@@ -102,6 +118,10 @@ func (cat *CategoryControllerImplementation) GetCategoryByID(c *gin.Context) {
 
 	category, msg, err := cat.CategoryService.GetCategoryByID(c.Request.Context(), ID)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
@@ -118,6 +138,10 @@ func (cat *CategoryControllerImplementation) GetCategoryByName(c *gin.Context) {
 
 	category, msg, err := cat.CategoryService.GetCategoryByName(c.Request.Context(), name)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
@@ -131,6 +155,7 @@ func (cat *CategoryControllerImplementation) GetCategoryByName(c *gin.Context) {
 func (cat *CategoryControllerImplementation) GetCategories(c *gin.Context) {
 	categories, msg, err := cat.CategoryService.GetCategories(c.Request.Context())
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
