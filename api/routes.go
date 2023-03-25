@@ -10,28 +10,31 @@ import (
 
 func GinRoute(db *gorm.DB) *gin.Engine {
 
-	r := gin.New()
+	r := gin.Default()
 	r.HandleMethodNotAllowed = true
 
 	userRepository := repository.NewUserRepositoryImplementation()
-	userService := service.NewUserServiceImplementation(db, userRepository)
-	userController := controller.NewUserControllerImplementation(userService)
-
 	authRepository := repository.NewAuthRepositoryImplementation()
-	authService := service.NewAuthServiceImplementation(db, authRepository, userService)
-	authController := controller.NewAuthControllerImplementation(authService)
-
 	categoryRepository := repository.NewCategoryRepositoryImplementation()
-	categoryService := service.NewCategoryServiceImplementation(db, categoryRepository)
-	categoryController := controller.NewCategoryControllerImplementation(categoryService)
-
 	bookRepository := repository.NewBookRepositoryImplementation()
-	bookService := service.NewBookServiceImplementation(db, bookRepository, categoryService)
-	bookController := controller.NewBookControllerImplementation(bookService)
-
 	wishlistRepository := repository.NewWishlistRepositoryImplementation()
-	wishlistService := service.NewWishlistServiceImplementation(db, wishlistRepository, userService, bookService)
+	ratingRepository := repository.NewRatingRepositoryImplementation()
+
+	microService := repository.NewRegisterMicroServiceImplementation(userRepository, authRepository, categoryRepository, bookRepository, wishlistRepository, ratingRepository)
+
+	userService := service.NewUserServiceImplementation(db, microService)
+	authService := service.NewAuthServiceImplementation(db, microService)
+	categoryService := service.NewCategoryServiceImplementation(db, microService)
+	bookService := service.NewBookServiceImplementation(db, microService)
+	wishlistService := service.NewWishlistServiceImplementation(db, microService)
+	ratingService := service.NewRatingServiceImplementation(db, microService)
+
+	userController := controller.NewUserControllerImplementation(userService)
+	authController := controller.NewAuthControllerImplementation(authService)
+	categoryController := controller.NewCategoryControllerImplementation(categoryService)
+	bookController := controller.NewBookControllerImplementation(bookService)
 	wishlistController := controller.NewWishlistControllerImplementation(wishlistService)
+	ratingController := controller.NewRatingControllerImplementation(ratingService)
 
 	api := r.Group("api/v.1")
 	user := api.Group("/user")
@@ -81,6 +84,9 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 		} else if c.Query("title") != "" {
 			bookController.GetBookByTitle(c)
 			return
+		} else if c.Query(("category_id")) != "" {
+			bookController.GetBooksByCategoryID(c)
+			return
 		} else {
 			bookController.GetBooks(c)
 			return
@@ -101,6 +107,20 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 			return
 		} else {
 			wishlistController.GetWishlists(c)
+			return
+		}
+	})
+
+	rating := api.Group("/rating")
+	rating.POST("/add", ratingController.AddRating)
+	rating.PUT("/update", ratingController.UpdateRating)
+	rating.DELETE("/delete", ratingController.DeleteRating)
+	rating.GET("/get", func(c *gin.Context) {
+		if c.Query("id") != "" {
+			ratingController.GetRatingByID(c)
+			return
+		} else if c.Query("book_id") != "" {
+			ratingController.GetRatingByBookID(c)
 			return
 		}
 	})
