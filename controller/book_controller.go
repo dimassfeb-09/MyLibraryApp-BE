@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"gorm.io/gorm"
+	"net/http"
+	"strconv"
+
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/helpers"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 type BookController interface {
@@ -14,6 +16,7 @@ type BookController interface {
 	UpdateBook(c *gin.Context)
 	DeleteBook(c *gin.Context)
 	GetBookByID(c *gin.Context)
+	GetBooksByCategoryID(c *gin.Context)
 	GetBookByTitle(c *gin.Context)
 	GetBooks(c *gin.Context)
 }
@@ -36,6 +39,10 @@ func (b *BookControllerImplementation) AddBook(c *gin.Context) {
 
 	isSuccess, msg, err := b.BookService.AddBook(c.Request.Context(), book)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
@@ -64,12 +71,16 @@ func (b *BookControllerImplementation) UpdateBook(c *gin.Context) {
 
 	isSuccess, msg, err := b.BookService.UpdateBook(c.Request.Context(), book)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
 
 	if isSuccess {
-		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("OK", http.StatusOK, msg, nil))
+		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, nil))
 		return
 	}
 }
@@ -83,9 +94,14 @@ func (b *BookControllerImplementation) DeleteBook(c *gin.Context) {
 
 	isSuccess, msg, err := b.BookService.DeleteBook(c.Request.Context(), ID)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
+
 	if isSuccess {
 		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, nil))
 		return
@@ -100,6 +116,28 @@ func (b *BookControllerImplementation) GetBookByID(c *gin.Context) {
 	}
 
 	result, msg, err := b.BookService.GetBookByID(c.Request.Context(), ID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
+		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
+		return
+	}
+	if result != nil {
+		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, result))
+		return
+	}
+}
+
+func (b *BookControllerImplementation) GetBooksByCategoryID(c *gin.Context) {
+	categoryID, err := strconv.Atoi(c.Query("category_id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, "Invalid ID", nil))
+		return
+	}
+
+	result, msg, err := b.BookService.GetBooksByCategoryID(c.Request.Context(), categoryID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
