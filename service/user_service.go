@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/response"
+	"github.com/dimassfeb-09/MyLibraryApp-BE.git/repository"
 
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
-	"github.com/dimassfeb-09/MyLibraryApp-BE.git/repository"
 	"gorm.io/gorm"
 )
 
@@ -24,8 +24,8 @@ type UserServiceImplementation struct {
 	UserRepository repository.UserRepository
 }
 
-func NewUserServiceImplementation(DB *gorm.DB, userRepository repository.UserRepository) UserService {
-	return &UserServiceImplementation{DB: DB, UserRepository: userRepository}
+func NewUserServiceImplementation(DB *gorm.DB, microRepository repository.MicroRepository) UserService {
+	return &UserServiceImplementation{DB: DB, UserRepository: microRepository.User()}
 }
 
 func (u *UserServiceImplementation) AddUser(ctx context.Context, r *request.User) (bool, string, error) {
