@@ -9,4 +9,5 @@ type Book struct {
 	ImgURL      string  `json:"img_url"`
 	Rating      float32 `json:"rating"`
 	CategoryID  int     `json:"category_id"`
+	GenreID     int     `json:"genre_id"`
 }
