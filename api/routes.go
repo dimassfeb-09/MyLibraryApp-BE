@@ -19,8 +19,9 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 	bookRepository := repository.NewBookRepositoryImplementation()
 	wishlistRepository := repository.NewWishlistRepositoryImplementation()
 	ratingRepository := repository.NewRatingRepositoryImplementation()
+	genreRepository := repository.NewGenreRepositoryImplementation()
 
-	microService := repository.NewRegisterMicroServiceImplementation(userRepository, authRepository, categoryRepository, bookRepository, wishlistRepository, ratingRepository)
+	microService := repository.NewRegisterMicroServiceImplementation(userRepository, authRepository, categoryRepository, bookRepository, wishlistRepository, ratingRepository, genreRepository)
 
 	userService := service.NewUserServiceImplementation(db, microService)
 	authService := service.NewAuthServiceImplementation(db, microService)
@@ -28,6 +29,7 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 	bookService := service.NewBookServiceImplementation(db, microService)
 	wishlistService := service.NewWishlistServiceImplementation(db, microService)
 	ratingService := service.NewRatingServiceImplementation(db, microService)
+	genreService := service.NewGenreServiceImplementation(db, microService)
 
 	userController := controller.NewUserControllerImplementation(userService)
 	authController := controller.NewAuthControllerImplementation(authService)
@@ -35,6 +37,7 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 	bookController := controller.NewBookControllerImplementation(bookService)
 	wishlistController := controller.NewWishlistControllerImplementation(wishlistService)
 	ratingController := controller.NewRatingControllerImplementation(ratingService)
+	genreController := controller.NewGenreControllerImplementation(genreService)
 
 	api := r.Group("api/v.1")
 	user := api.Group("/user")
@@ -84,6 +87,9 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 		} else if c.Query("title") != "" {
 			bookController.GetBookByTitle(c)
 			return
+		} else if c.Query("genre_id") != "" {
+			bookController.GetBooksByGenreID(c)
+			return
 		} else if c.Query(("category_id")) != "" {
 			bookController.GetBooksByCategoryID(c)
 			return
@@ -121,6 +127,23 @@ func GinRoute(db *gorm.DB) *gin.Engine {
 			return
 		} else if c.Query("book_id") != "" {
 			ratingController.GetRatingByBookID(c)
+			return
+		}
+	})
+
+	genre := api.Group("/genre")
+	genre.POST("/add", genreController.AddGenre)
+	genre.PUT("/update", genreController.UpdateGenre)
+	genre.DELETE("/delete", genreController.DeleteGenre)
+	genre.GET("/get", func(c *gin.Context) {
+		if c.Query("id") != "" {
+			genreController.GetGenreByID(c)
+			return
+		} else if c.Query(("category_id")) != "" {
+			genreController.GetGenreByCategoryID(c)
+			return
+		} else {
+			genreController.GetGenres(c)
 			return
 		}
 	})
