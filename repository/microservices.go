@@ -7,6 +7,7 @@ type MicroRepository interface {
 	Book() BookRepository
 	Wishlist() WishlistRepository
 	Rating() RatingRepository
+	Genre() GenreRepository
 }
 
 type MicroRepositorysImplementation struct {
@@ -16,10 +17,11 @@ type MicroRepositorysImplementation struct {
 	BookRepository
 	WishlistRepository
 	RatingRepository
+	GenreRepository
 }
 
-func NewRegisterMicroServiceImplementation(userRepository UserRepository, authRepository AuthRepository, categoryRepository CategoryRepository, bookRepository BookRepository, wishlistRepository WishlistRepository, ratingRepository RatingRepository) MicroRepository {
-	return &MicroRepositorysImplementation{UserRepository: userRepository, AuthRepository: authRepository, CategoryRepository: categoryRepository, BookRepository: bookRepository, WishlistRepository: wishlistRepository, RatingRepository: ratingRepository}
+func NewRegisterMicroServiceImplementation(userRepository UserRepository, authRepository AuthRepository, categoryRepository CategoryRepository, bookRepository BookRepository, wishlistRepository WishlistRepository, ratingRepository RatingRepository, genreRepository GenreRepository) MicroRepository {
+	return &MicroRepositorysImplementation{UserRepository: userRepository, AuthRepository: authRepository, CategoryRepository: categoryRepository, BookRepository: bookRepository, WishlistRepository: wishlistRepository, RatingRepository: ratingRepository, GenreRepository: genreRepository}
 }
 
 func (m *MicroRepositorysImplementation) User() UserRepository {
@@ -44,4 +46,8 @@ func (m *MicroRepositorysImplementation) Wishlist() WishlistRepository {
 
 func (m *MicroRepositorysImplementation) Rating() RatingRepository {
 	return m.RatingRepository
+}
+
+func (m *MicroRepositorysImplementation) Genre() GenreRepository {
+	return m.GenreRepository
 }
