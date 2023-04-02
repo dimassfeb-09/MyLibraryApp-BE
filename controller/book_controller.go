@@ -1,9 +1,10 @@
 package controller
 
 import (
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
+
+	"gorm.io/gorm"
 
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/helpers"
@@ -17,6 +18,7 @@ type BookController interface {
 	DeleteBook(c *gin.Context)
 	GetBookByID(c *gin.Context)
 	GetBooksByCategoryID(c *gin.Context)
+	GetBooksByGenreID(c *gin.Context)
 	GetBookByTitle(c *gin.Context)
 	GetBooks(c *gin.Context)
 }
@@ -138,6 +140,24 @@ func (b *BookControllerImplementation) GetBooksByCategoryID(c *gin.Context) {
 	}
 
 	result, msg, err := b.BookService.GetBooksByCategoryID(c.Request.Context(), categoryID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
+		return
+	}
+	if result != nil {
+		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, result))
+		return
+	}
+}
+
+func (b *BookControllerImplementation) GetBooksByGenreID(c *gin.Context) {
+	categoryID, err := strconv.Atoi(c.Query("genre_id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, "Invalid ID", nil))
+		return
+	}
+
+	result, msg, err := b.BookService.GetBooksByGenreID(c.Request.Context(), categoryID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
