@@ -81,10 +81,10 @@ func (b *BookRepositoryImplementation) GetBooksByCategoryID(ctx context.Context,
 
 func (b *BookRepositoryImplementation) GetBooksByGenreID(ctx context.Context, db *gorm.DB, genreID int) (books []*domain.Book, msg string, err error) {
 	if err := db.WithContext(ctx).Table("book").Where("genre_id = ?", genreID).Find(&books).Error; err != nil {
-		return nil, "Gagal Get Book by Category ID.", err
+		return nil, "Gagal Get Book by Genre ID.", err
 	}
 	fmt.Println(books)
-	return books, "Berhasil Get Book by Category ID.", nil
+	return books, "Berhasil Get Book by Genre ID.", nil
 }
 
 func (b *BookRepositoryImplementation) GetBookByID(ctx context.Context, db *gorm.DB, ID int) (book *domain.Book, msg string, err error) {
