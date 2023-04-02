@@ -18,6 +18,7 @@ type BookService interface {
 	DeleteBook(ctx context.Context, ID int) (bool, string, error)
 	GetBookByID(ctx context.Context, ID int) (book *response.Book, msg string, err error)
 	GetBooksByCategoryID(ctx context.Context, ID int) (books []*response.Book, msg string, err error)
+	GetBooksByGenreID(ctx context.Context, ID int) (books []*response.Book, msg string, err error)
 	GetBookByTitle(ctx context.Context, title string) (book []*response.Book, msg string, err error)
 	GetBooks(ctx context.Context) (books []*response.Book, msg string, err error)
 }
@@ -112,6 +113,32 @@ func (b *BookServiceImplementation) GetBooksByCategoryID(ctx context.Context, ID
 
 	var books []*response.Book
 	for _, result := range results {
+		book := &response.Book{
+			ID:          result.ID,
+			Title:       result.Title,
+			Description: result.Description,
+			Stok:        result.Stok,
+			Writer:      result.Writer,
+			ImgURL:      result.ImgURL,
+			Rating:      avgRating.Rating,
+			CategoryID:  result.CategoryID,
+			GenreID:     result.GenreID,
+		}
+		books = append(books, book)
+	}
+
+	return books, msg, nil
+}
+
+func (b *BookServiceImplementation) GetBooksByGenreID(ctx context.Context, ID int) ([]*response.Book, string, error) {
+	results, msg, err := b.BookRepository.GetBooksByGenreID(ctx, b.db, ID)
+	if err == gorm.ErrRecordNotFound {
+		return nil, "Data buku tidak ditemukan.", err
+	}
+
+	var books []*response.Book
+	for _, result := range results {
+		avgRating, _, _ := b.RatingRepository.GetRatingByBookID(ctx, b.db, int(result.ID))
 		book := &response.Book{
 			ID:          result.ID,
 			Title:       result.Title,
