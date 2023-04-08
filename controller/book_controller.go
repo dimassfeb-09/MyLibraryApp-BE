@@ -50,7 +50,7 @@ func (b *BookControllerImplementation) AddBook(c *gin.Context) {
 	}
 
 	if isSuccess {
-		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("OK", http.StatusOK, msg, nil))
+		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, nil))
 		return
 	}
 }

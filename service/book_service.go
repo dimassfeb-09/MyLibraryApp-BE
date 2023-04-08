@@ -46,6 +46,11 @@ func (b *BookServiceImplementation) AddBook(ctx context.Context, r *request.Book
 		return false, "Kategori tidak ditemukan.", err
 	}
 
+	_, _, err = b.BookRepository.GetBookByTitle(ctx, b.db, r.Title)
+	if err != gorm.ErrRecordNotFound {
+		return false, "Buku sudah tersedia.", err
+	}
+
 	book := &domain.Book{
 		Title:       r.Title,
 		Description: r.Description,
