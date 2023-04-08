@@ -16,6 +16,7 @@ type BookRepository interface {
 	GetBooksByCategoryID(ctx context.Context, db *gorm.DB, categoryID int) (book []*domain.Book, msg string, err error)
 	GetBooksByGenreID(ctx context.Context, db *gorm.DB, genreID int) (book []*domain.Book, msg string, err error)
 	GetBookByTitle(ctx context.Context, db *gorm.DB, name string) (book []*domain.Book, msg string, err error)
+	GetBookByQuery(ctx context.Context, db *gorm.DB, query string) (book []*domain.Book, msg string, err error)
 	GetBooks(ctx context.Context, db *gorm.DB) (books []*domain.Book, msg string, err error)
 }
 
@@ -95,7 +96,14 @@ func (b *BookRepositoryImplementation) GetBookByID(ctx context.Context, db *gorm
 }
 
 func (b *BookRepositoryImplementation) GetBookByTitle(ctx context.Context, db *gorm.DB, title string) (books []*domain.Book, msg string, err error) {
-	if err := db.WithContext(ctx).Table("book").Where("(title LIKE ? OR writer LIKE ?)", "%"+title+"%", "%"+title+"%").Find(&books).Error; err != nil {
+	if err := db.WithContext(ctx).Table("book").Where("title = ?", "%", title).Find(&books).Error; err != nil {
+		return nil, "Gagal get data kategoris.", err
+	}
+	return books, "Berhasil get data kategoris.", nil
+}
+
+func (b *BookRepositoryImplementation) GetBookByQuery(ctx context.Context, db *gorm.DB, query string) (books []*domain.Book, msg string, err error) {
+	if err := db.WithContext(ctx).Table("book").Joins("JOIN category ON category.id = book.category_id").Where("(title LIKE ? OR writer LIKE ? OR category.name = ?)", "%"+query+"%", "%"+query+"%", query).Find(&books).Error; err != nil {
 		return nil, "Gagal get data kategoris.", err
 	}
 	return books, "Berhasil get data kategoris.", nil
