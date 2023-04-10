@@ -28,6 +28,7 @@ func NewBookRepositoryImplementation() BookRepository {
 }
 
 func (b *BookRepositoryImplementation) AddBook(ctx context.Context, tx *gorm.DB, book *domain.Book) (bool, string, error) {
+	fmt.Println(book)
 	err := tx.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Table("book").Create(&book).Error; err != nil {
 			return err
@@ -96,7 +97,7 @@ func (b *BookRepositoryImplementation) GetBookByID(ctx context.Context, db *gorm
 }
 
 func (b *BookRepositoryImplementation) GetBookByTitle(ctx context.Context, db *gorm.DB, title string) (books []*domain.Book, msg string, err error) {
-	if err := db.WithContext(ctx).Table("book").Where("title = ?", "%", title).Find(&books).Error; err != nil {
+	if err := db.WithContext(ctx).Table("book").Where("title = ?", title).Find(&books).Error; err != nil {
 		return nil, "Gagal get data kategoris.", err
 	}
 	return books, "Berhasil get data kategoris.", nil

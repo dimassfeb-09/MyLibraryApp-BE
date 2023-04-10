@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -130,6 +131,8 @@ func (g *GenreControllerImplementation) GetGenreByCategoryID(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, "Invalid ID", nil))
 		return
 	}
+
+	fmt.Println(ID)
 
 	result, msg, err := g.GenreService.GetGenreByCategoryID(c.Request.Context(), ID)
 	if err != nil {
