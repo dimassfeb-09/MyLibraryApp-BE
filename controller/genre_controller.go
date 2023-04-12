@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -35,6 +36,9 @@ func (g *GenreControllerImplementation) AddGenre(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, err.Error(), nil))
 		return
 	}
+
+	fmt.Println("aghfdas")
+	fmt.Println(genre)
 
 	isSuccess, msg, err := g.GenreService.AddGenre(c.Request.Context(), genre)
 	if err != nil {

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
 	"gorm.io/gorm"
@@ -39,6 +40,7 @@ func (g *GenreRepositoryImplementation) AddGenre(ctx context.Context, tx *gorm.D
 }
 
 func (g *GenreRepositoryImplementation) UpdateGenre(ctx context.Context, tx *gorm.DB, genre *domain.Genre) (bool, string, error) {
+	fmt.Println(genre)
 	err := tx.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Table("genre").Where("id = ?", genre.ID).Updates(&genre).Error; err != nil {
 			return err
