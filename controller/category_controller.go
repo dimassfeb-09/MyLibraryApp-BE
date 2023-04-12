@@ -2,9 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
+
+	"gorm.io/gorm"
 
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/request"
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/helpers"
@@ -33,7 +34,6 @@ func (cat *CategoryControllerImplementation) AddCategory(c *gin.Context) {
 	var category *request.Category
 	err := c.ShouldBind(&category)
 	if err != nil {
-
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, err.Error(), nil))
 		return
 	}

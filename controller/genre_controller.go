@@ -37,6 +37,9 @@ func (g *GenreControllerImplementation) AddGenre(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("aghfdas")
+	fmt.Println(genre)
+
 	isSuccess, msg, err := g.GenreService.AddGenre(c.Request.Context(), genre)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
