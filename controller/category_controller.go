@@ -161,7 +161,7 @@ func (cat *CategoryControllerImplementation) GetCategories(c *gin.Context) {
 	}
 
 	if categories != nil {
-		c.JSON(http.StatusBadRequest, helpers.ToWebResponse("OK", http.StatusOK, msg, categories))
+		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, categories))
 		return
 	}
 }
