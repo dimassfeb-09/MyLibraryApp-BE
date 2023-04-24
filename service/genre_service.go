@@ -17,6 +17,7 @@ type GenreService interface {
 	UpdateGenre(ctx context.Context, r *request.Genre) (isSuccess bool, msg string, err error)
 	DeleteGenre(ctx context.Context, ID int) (isSuccess bool, msg string, err error)
 	GetGenreByID(ctx context.Context, ID int) (genre *response.Genre, msg string, err error)
+	GetGenreByName(ctx context.Context, name string) (genre *response.Genre, msg string, err error)
 	GetGenreByCategoryID(ctx context.Context, ID int) (genre []*response.Genre, msg string, err error)
 	GetGenres(ctx context.Context) (genre []*response.Genre, msg string, err error)
 }
@@ -33,10 +34,17 @@ func NewGenreServiceImplementation(DB *gorm.DB, M repository.MicroRepository) Ge
 
 func (g *GenreServiceImplementation) AddGenre(ctx context.Context, r *request.Genre) (bool, string, error) {
 
+	data, _, err := g.GetGenreByName(ctx, r.Name)
+	if data != nil {
+		fmt.Println(err)
+		return false, "Nama Genre telah tersedia.", errors.New("Nama genre telah tersedia.")
+	}
+
 	genre := &domain.Genre{
 		Name:       r.Name,
 		CategoryID: r.CategoryID,
 	}
+
 	_, msg, err := g.GenreRepository.AddGenre(ctx, g.DB, genre)
 	if err != nil {
 		return false, msg, err
@@ -71,7 +79,7 @@ func (g *GenreServiceImplementation) UpdateGenre(ctx context.Context, r *request
 func (g *GenreServiceImplementation) DeleteGenre(ctx context.Context, ID int) (bool, string, error) {
 	_, msg, err := g.GetGenreByID(ctx, ID)
 	if err == gorm.ErrRecordNotFound {
-		return false, "Genre ID tidak ditemukan.", err
+		return false, "Genre ID tidak ditemukan.", errors.New("Data telah digunakan")
 	}
 
 	bookByGenre, _, _ := g.MicroRepository.Book().GetBooksByGenreID(ctx, g.DB, ID)
@@ -89,6 +97,24 @@ func (g *GenreServiceImplementation) DeleteGenre(ctx context.Context, ID int) (b
 
 func (g *GenreServiceImplementation) GetGenreByID(ctx context.Context, ID int) (*response.Genre, string, error) {
 	result, msg, err := g.GenreRepository.GetGenreByID(ctx, g.DB, ID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, "Genre ID tidak ditemukan.", err
+		}
+		return nil, msg, err
+	}
+
+	genre := &response.Genre{
+		ID:         result.ID,
+		Name:       result.Name,
+		CategoryID: result.CategoryID,
+	}
+
+	return genre, "Berhasil get Genre.", nil
+}
+
+func (g *GenreServiceImplementation) GetGenreByName(ctx context.Context, name string) (*response.Genre, string, error) {
+	result, msg, err := g.GenreRepository.GetGenreByName(ctx, g.DB, name)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, "Genre ID tidak ditemukan.", err

@@ -12,6 +12,7 @@ type GenreRepository interface {
 	AddGenre(ctx context.Context, tx *gorm.DB, genre *domain.Genre) (isSuccess bool, msg string, err error)
 	UpdateGenre(ctx context.Context, tx *gorm.DB, genre *domain.Genre) (isSuccess bool, msg string, err error)
 	DeleteGenre(ctx context.Context, tx *gorm.DB, ID int) (isSuccess bool, msg string, err error)
+	GetGenreByName(ctx context.Context, db *gorm.DB, name string) (genre *domain.Genre, msg string, err error)
 	GetGenreByID(ctx context.Context, db *gorm.DB, ID int) (genre *domain.Genre, msg string, err error)
 	GetGenreByCategoryID(ctx context.Context, db *gorm.DB, ID int) (genre []*domain.Genre, msg string, err error)
 	GetGenres(ctx context.Context, db *gorm.DB) (genres []*domain.Genre, msg string, err error)
@@ -74,7 +75,14 @@ func (g *GenreRepositoryImplementation) GetGenreByID(ctx context.Context, db *go
 	if err := db.WithContext(ctx).Table("genre").Where("id = ?", ID).First(&genre).Error; err != nil {
 		return nil, "Gagal get genre.", err
 	}
-	return genre, "Berhasil get genre.", nil
+	return genre, "Berhasil get genre by id.", nil
+}
+
+func (g *GenreRepositoryImplementation) GetGenreByName(ctx context.Context, db *gorm.DB, name string) (genre *domain.Genre, msg string, err error) {
+	if err := db.WithContext(ctx).Table("genre").Where("name = ?", name).First(&genre).Error; err != nil {
+		return nil, "Gagal get genre.", err
+	}
+	return genre, "Berhasil get genre by name.", nil
 }
 
 func (g *GenreRepositoryImplementation) GetGenreByCategoryID(ctx context.Context, db *gorm.DB, ID int) (genre []*domain.Genre, msg string, err error) {
