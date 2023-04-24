@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/dimassfeb-09/MyLibraryApp-BE.git/entity/domain"
@@ -111,7 +110,6 @@ func (b *BookServiceImplementation) DeleteBook(ctx context.Context, ID int) (boo
 }
 
 func (b *BookServiceImplementation) GetBooksByCategoryID(ctx context.Context, ID int) ([]*response.Book, string, error) {
-	fmt.Println(ID)
 	results, msg, err := b.BookRepository.GetBooksByCategoryID(ctx, b.db, ID)
 	if err == gorm.ErrRecordNotFound {
 		return nil, "Data buku tidak ditemukan.", err
@@ -189,7 +187,7 @@ func (b *BookServiceImplementation) GetBookByID(ctx context.Context, ID int) (*r
 }
 
 func (b *BookServiceImplementation) GetBookByTitle(ctx context.Context, title string) (books []*response.Book, msg string, err error) {
-	results, msg, err := b.BookRepository.GetBookByTitle(ctx, b.db, title)
+	results, msg, err := b.BookRepository.GetBookByQuery(ctx, b.db, title)
 	if err != nil {
 		return nil, msg, err
 	}

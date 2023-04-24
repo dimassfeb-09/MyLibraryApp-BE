@@ -141,13 +141,15 @@ func (b *BookControllerImplementation) GetBooksByCategoryID(c *gin.Context) {
 
 	result, msg, err := b.BookService.GetBooksByCategoryID(c.Request.Context(), categoryID)
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, helpers.ToWebResponse("Not Found", http.StatusNotFound, msg, nil))
+			return
+		}
 		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
-	if result != nil {
-		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, result))
-		return
-	}
+
+	c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, result))
 }
 
 func (b *BookControllerImplementation) GetBooksByGenreID(c *gin.Context) {
@@ -162,10 +164,8 @@ func (b *BookControllerImplementation) GetBooksByGenreID(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, helpers.ToWebResponse("Bad Request", http.StatusBadRequest, msg, nil))
 		return
 	}
-	if result != nil {
-		c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, result))
-		return
-	}
+
+	c.JSON(http.StatusOK, helpers.ToWebResponse("OK", http.StatusOK, msg, result))
 }
 
 func (b *BookControllerImplementation) GetBookByTitle(c *gin.Context) {
